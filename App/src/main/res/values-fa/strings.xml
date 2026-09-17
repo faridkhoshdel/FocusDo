@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">فوکوس‌یار</string>
+    <string name="tasks">وظایف</string>
+    <string name="focus">تمرکز</string>
+    <string name="settings">تنظیمات</string>
+
+    <string name="add_task">افزودن وظیفه</string>
+    <string name="edit_task">ویرایش وظیفه</string>
+    <string name="task_title">عنوان</string>
+    <string name="note">یادداشت</string>
+    <string name="priority">اولویت</string>
+
+    <string name="low">کم</string>
+    <string name="medium">متوسط</string>
+    <string name="high">زیاد</string>
+
+    <string name="save">ذخیره</string>
+    <string name="cancel">انصراف</string>
+    <string name="delete">حذف</string>
+    <string name="search">جست‌وجو</string>
+
+    <string name="all">همه</string>
+    <string name="active">فعال</string>
+    <string name="completed">انجام‌شده</string>
+    <string name="no_tasks">وظیفه‌ای یافت نشد</string>
+
+    <string name="language">زبان</string>
+    <string name="theme">پوسته</string>
+    <string name="system">سیستم</string>
+    <string name="light">روشن</string>
+    <string name="dark">تیره</string>
+    <string name="english">English</string>
+    <string name="persian">فارسی</string>
+
+    <string name="focus_mode">حالت تمرکز</string>
+    <string name="work">کار</string>
+    <string name="break_">استراحت</string>
+    <string name="start">شروع</string>
+    <string name="pause">توقف</string>
+    <string name="reset">بازنشانی</string>
+</resources>
