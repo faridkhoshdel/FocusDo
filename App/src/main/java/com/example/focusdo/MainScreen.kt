@@ -24,8 +24,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
@@ -76,7 +78,10 @@ fun MainScreen(viewModel: MainViewModel) {
     Scaffold(
         floatingActionButton = {
             if (selectedTab == 0) {
-                FloatingActionButton(onClick = viewModel::openAddDialog) {
+                FloatingActionButton(
+                    onClick = viewModel::openAddDialog,
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
                     Icon(
                         Icons.Default.Add,
                         contentDescription = stringResource(R.string.add_task)
@@ -115,11 +120,23 @@ fun MainScreen(viewModel: MainViewModel) {
                     onClick = { selectedTab = 2 },
                     icon = {
                         Icon(
-                            Icons.Default.Settings,
-                            contentDescription = stringResource(R.string.settings)
+                            Icons.Default.BarChart,
+                            contentDescription = stringResource(R.string.dashboard)
                         )
                     },
-                    label = { Text(stringResource(R.string.settings)) }
+                    label = { Text(stringResource(R.string.dashboard)) }
+                )
+
+                NavigationBarItem(
+                    selected = selectedTab == 3,
+                    onClick = { selectedTab = 3 },
+                    icon = {
+                        Icon(
+                            Icons.Default.Info,
+                            contentDescription = stringResource(R.string.about)
+                        )
+                    },
+                    label = { Text(stringResource(R.string.about)) }
                 )
             }
         }
@@ -145,7 +162,8 @@ fun MainScreen(viewModel: MainViewModel) {
                 onModeChange = viewModel::setTimerMode
             )
 
-            2 -> SettingsScreen(padding = padding)
+            2 -> DashboardScreen()
+            3 -> AboutScreen()
         }
     }
 
@@ -263,7 +281,10 @@ private fun TaskCard(
         else -> MaterialTheme.colorScheme.secondary
     }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -487,7 +508,12 @@ private fun FocusScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(onClick = onStartPause) {
+            Button(
+                onClick = onStartPause,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
                 Icon(
                     if (timer.isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
                     contentDescription = null
