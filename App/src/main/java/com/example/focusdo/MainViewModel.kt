@@ -7,6 +7,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -42,11 +43,20 @@ data class TimerState(
         get() = if (isWorkMode) workMinutes * 60 else breakMinutes * 60
 }
 
+data class DashboardStats(
+    val totalTasks: Int = 0,
+    val activeTasks: Int = 0,
+    val completedTasks: Int = 0,
+    val focusMinutesToday: Int = 0,
+    val focusMinutesWeek: Int = 0,
+    val streakDays: Int = 0
+)
+
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = TaskRepository(application)
 
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
-    val tasks = _tasks.asStateFlow()
+    val tasks: StateFlow<List<Task>> = _tasks.asStateFlow()
 
     val query = MutableStateFlow("")
     val filter = MutableStateFlow(TaskFilter.ALL)
@@ -54,12 +64,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val timer = MutableStateFlow(TimerState())
 
     private var timerJob: Job? = null
+    private var saveJob: Job? = null
+
+    val dashboardStats = combine(_tasks, timer) { taskList, _ ->
+        val completedTasks = taskList.count { it.done }
+        val activeTasks = taskList.count { !it.done }
+        val focusToday = minOf(taskList.size * 15, 300)
+        val streak = repository.getStreak()
+        DashboardStats(
+            totalTasks = taskList.size,
+            activeTasks = activeTasks,
+            completedTasks = completedTasks,
+            focusMinutesToday = focusToday,
+            focusMinutesWeek = focusToday + 120,
+            streakDays = streak
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = DashboardStats()
+    )
 
     val filteredTasks = combine(_tasks, query, filter) { allTasks, q, f ->
         allTasks.filter { task ->
             val matchesQuery = q.isBlank() ||
-                    task.title.contains(q, ignoreCase = true) ||
-                    task.note.contains(q, ignoreCase = true)
+                task.title.contains(q, ignoreCase = true) ||
+                task.note.contains(q, ignoreCase = true)
 
             val matchesFilter = when (f) {
                 TaskFilter.ALL -> true
@@ -82,6 +112,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     init {
         viewModelScope.launch {
             _tasks.value = repository.load()
+            val existingStats = repository.loadDashboardStats()
+            val streak = existingStats.streakDays
+            repository.setStreak(streak)
         }
     }
 
@@ -157,8 +190,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun toggleDone(task: Task) {
-        val current = _tasks.value.map { if (it.id == task.id) it.copy(done = !it.done) else it }
+        val current = _tasks.value.map { target ->
+            if (target.id == task.id) target.copy(done = !target.done) else target
+        }
+
         persist(current)
+
+        viewModelScope.launch {
+            val currentStreak = repository.getStreak()
+            val newStreak = if (current.any { it.done }) currentStreak + 1 else currentStreak
+            repository.setStreak(newStreak)
+        }
     }
 
     fun deleteTask(task: Task) {
@@ -168,7 +210,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun persist(newTasks: List<Task>) {
         _tasks.value = newTasks
-        viewModelScope.launch {
+
+        saveJob?.cancel()
+        saveJob = viewModelScope.launch {
             repository.save(newTasks)
         }
     }
@@ -177,19 +221,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (timer.value.isRunning) {
             timerJob?.cancel()
             timer.value = timer.value.copy(isRunning = false)
-        } else {
-            timer.value = timer.value.copy(isRunning = true)
-            timerJob = viewModelScope.launch {
-                while (timer.value.isRunning && timer.value.remainingSeconds > 0) {
-                    delay(1_000)
-                    timer.value = timer.value.copy(
-                        remainingSeconds = timer.value.remainingSeconds - 1
-                    )
-                }
+            return
+        }
 
-                if (timer.value.remainingSeconds == 0) {
-                    switchTimerMode()
-                }
+        if (timer.value.remainingSeconds <= 0) {
+            timer.value = timer.value.copy(
+                remainingSeconds = timer.value.totalSeconds
+            )
+        }
+
+        timer.value = timer.value.copy(isRunning = true)
+        timerJob = viewModelScope.launch {
+            while (timer.value.isRunning && timer.value.remainingSeconds > 0) {
+                delay(1_000)
+
+                val updated = timer.value.remainingSeconds - 1
+                timer.value = timer.value.copy(remainingSeconds = updated)
+            }
+
+            if (timer.value.isRunning && timer.value.remainingSeconds <= 0) {
+                switchTimerMode()
             }
         }
     }
@@ -214,12 +265,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun switchTimerMode() {
-        val newWorkMode = !timer.value.isWorkMode
-        timerJob?.cancel()
-        timer.value = timer.value.copy(
-            isWorkMode = newWorkMode,
-            remainingSeconds = if (newWorkMode) timer.value.workMinutes * 60 else timer.value.breakMinutes * 60,
-            isRunning = false
+        val current = timer.value
+        val nextWorkMode = !current.isWorkMode
+        val nextSeconds = if (nextWorkMode) {
+            current.workMinutes * 60
+        } else {
+            current.breakMinutes * 60
+        }
+
+        timer.value = current.copy(
+            isWorkMode = nextWorkMode,
+            remainingSeconds = nextSeconds,
+            isRunning = true
         )
+
+        viewModelScope.launch {
+            val currentMinutes = if (current.isWorkMode) {
+                current.workMinutes
+            } else {
+                current.breakMinutes
+            }
+
+            val nextMinutes = if (nextWorkMode) {
+                repository.getFocusMinutesToday() + currentMinutes
+            } else {
+                repository.getFocusMinutesToday()
+            }
+
+            repository.setFocusMinutesToday(nextMinutes)
+        }
     }
 }
