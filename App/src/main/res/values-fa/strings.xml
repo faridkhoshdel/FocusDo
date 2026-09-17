@@ -1,55 +1,50 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">FocusDo</string>
     <string name="brand_name">blueFrame studio</string>
     <string name="designer_name">طراحی و توسعه: faridkhoshdel</string>
     <string name="developer_name">توسعه‌دهنده: faridkhoshdel</string>
     <string name="about_description">FocusDo یک اپلیکیشن هوشمند تمرکز و بهره‌وری است که توسط blueFrame studio ساخته شده است.</string>
-    <string name="dashboard">داشبورد</string>
-    <string name="about">درباره</string>
-    <string name="today_focus">تمرکز امروز</string>
-    <string name="weekly_focus">تمرکز هفتگی</string>
-    <string name="streak">زنجیره موفقیت</string>
-    <string name="tasks_completed">وظایف تکمیل‌شده</string>
-    <string name="focus_minutes">دقیقه تمرکز</string>
-    <string name="profile">پروفایل</string>
-    <string name="blueframe_signature">FocusDo • blueFrame studio</string>
+
     <string name="tasks">وظایف</string>
     <string name="focus">تمرکز</string>
-    <string name="settings">تنظیمات</string>
+    <string name="dashboard">داشبورد</string>
+    <string name="about">درباره</string>
 
+    <string name="search">جستجو</string>
+    <string name="all">همه</string>
+    <string name="active">فعال</string>
+    <string name="completed">تکمیل‌شده</string>
+    <string name="no_tasks">هنوز وظیفه‌ای ندارید</string>
     <string name="add_task">افزودن وظیفه</string>
     <string name="edit_task">ویرایش وظیفه</string>
-    <string name="task_title">عنوان</string>
+    <string name="task_title">عنوان وظیفه</string>
     <string name="note">یادداشت</string>
     <string name="priority">اولویت</string>
-
     <string name="low">کم</string>
     <string name="medium">متوسط</string>
     <string name="high">زیاد</string>
-
-    <string name="save">ذخیره</string>
-    <string name="cancel">انصراف</string>
     <string name="delete">حذف</string>
-    <string name="search">جست‌وجو</string>
+    <string name="save">ذخیره</string>
+    <string name="cancel">لغو</string>
 
-    <string name="all">همه</string>
-    <string name="active">فعال</string>
-    <string name="completed">انجام‌شده</string>
-    <string name="no_tasks">وظیفه‌ای یافت نشد</string>
-
-    <string name="language">زبان</string>
-    <string name="theme">پوسته</string>
-    <string name="system">سیستم</string>
-    <string name="light">روشن</string>
-    <string name="dark">تیره</string>
-    <string name="english">English</string>
-    <string name="persian">فارسی</string>
-
-    <string name="focus_mode">حالت تمرکز</string>
     <string name="work">کار</string>
     <string name="break_">استراحت</string>
     <string name="start">شروع</string>
     <string name="pause">توقف</string>
     <string name="reset">بازنشانی</string>
+    <string name="focus_mode">حالت تمرکز</string>
+
+    <string name="language">زبان</string>
+    <string name="theme">تم</string>
+    <string name="system">سیستم</string>
+    <string name="english">انگلیسی</string>
+    <string name="persian">فارسی</string>
+
+    <string name="today_focus">تمرکز امروز</string>
+    <string name="weekly_focus">تمرکز هفتگی</string>
+    <string name="streak">زنجیره</string>
+    <string name="tasks_completed">وظایف تکمیل‌شده</string>
+    <string name="focus_minutes">دقیقه تمرکز</string>
+    <string name="profile">پروفایل</string>
+    <string name="blueframe_signature">FocusDo • blueFrame studio</string>
 </resources>
