@@ -11,7 +11,7 @@ class TaskRepository(context: Context) {
         .getSharedPreferences("focusdo_db", Context.MODE_PRIVATE)
 
     suspend fun load(): List<Task> = withContext(Dispatchers.IO) {
-        val json = prefs.getString(KEY, "[]") ?: "[]"
+        val json = prefs.getString(KEY_TASKS, "[]") ?: "[]"
 
         try {
             val array = JSONArray(json)
@@ -51,10 +51,62 @@ class TaskRepository(context: Context) {
             array.put(obj)
         }
 
-        prefs.edit().putString(KEY, array.toString()).apply()
+        prefs.edit().putString(KEY_TASKS, array.toString()).apply()
+    }
+
+    suspend fun setFocusMinutesToday(minutes: Int) = withContext(Dispatchers.IO) {
+        prefs.edit().putInt(KEY_FOCUS_TODAY, minutes).apply()
+    }
+
+    suspend fun getFocusMinutesToday(): Int = withContext(Dispatchers.IO) {
+        prefs.getInt(KEY_FOCUS_TODAY, 0)
+    }
+
+    suspend fun setFocusMinutesWeek(minutes: Int) = withContext(Dispatchers.IO) {
+        prefs.edit().putInt(KEY_FOCUS_WEEK, minutes).apply()
+    }
+
+    suspend fun getFocusMinutesWeek(): Int = withContext(Dispatchers.IO) {
+        prefs.getInt(KEY_FOCUS_WEEK, 0)
+    }
+
+    suspend fun setStreak(streak: Int) = withContext(Dispatchers.IO) {
+        prefs.edit().putInt(KEY_STREAK, streak).apply()
+    }
+
+    suspend fun getStreak(): Int = withContext(Dispatchers.IO) {
+        prefs.getInt(KEY_STREAK, 0)
+    }
+
+    suspend fun setLastFocusDate(date: String) = withContext(Dispatchers.IO) {
+        prefs.edit().putString(KEY_LAST_FOCUS_DATE, date).apply()
+    }
+
+    suspend fun getLastFocusDate(): String = withContext(Dispatchers.IO) {
+        prefs.getString(KEY_LAST_FOCUS_DATE, "") ?: ""
+    }
+
+    suspend fun loadDashboardStats(): DashboardStats = withContext(Dispatchers.IO) {
+        val tasks = load()
+        val focusToday = getFocusMinutesToday()
+        val focusWeek = getFocusMinutesWeek()
+        val streak = getStreak()
+
+        DashboardStats(
+            totalTasks = tasks.size,
+            activeTasks = tasks.count { !it.done },
+            completedTasks = tasks.count { it.done },
+            focusMinutesToday = focusToday,
+            focusMinutesWeek = focusWeek,
+            streakDays = streak
+        )
     }
 
     companion object {
-        private const val KEY = "tasks"
+        private const val KEY_TASKS = "tasks"
+        private const val KEY_FOCUS_TODAY = "focus_minutes_today"
+        private const val KEY_FOCUS_WEEK = "focus_minutes_week"
+        private const val KEY_STREAK = "focus_streak"
+        private const val KEY_LAST_FOCUS_DATE = "last_focus_date"
     }
 }
