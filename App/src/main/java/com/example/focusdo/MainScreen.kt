@@ -118,6 +118,9 @@ NavigationBarItem(
     if (dialog.visible) TaskDialog(dialog, viewModel::dismissDialog, viewModel::onDialogTitleChange, viewModel::onDialogNoteChange, viewModel::onDialogPriorityChange, viewModel::saveDialog)
 }
 
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.semantics.Role
+
 @Composable
 private fun SettingRow(
     label: String,
@@ -127,15 +130,18 @@ private fun SettingRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = action)
+            .selectable(
+                selected = selected,
+                onClick = action,
+                role = Role.RadioButton
+            )
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
             selected = selected,
-            onClick = action
+            onClick = null // والد کار کلیک را انجام می‌دهد
         )
-
         Spacer(Modifier.width(8.dp))
         Text(label)
     }
