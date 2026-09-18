@@ -1,5 +1,19 @@
 package com.example.focusdo
 
+package com.example.focusdo
+
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults as Material3ButtonDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+
+object ButtonDefaults {
+    @Composable
+    fun buttonColors(containerColor: Color): ButtonColors =
+        Material3ButtonDefaults.buttonColors(
+            containerColor = containerColor
+        )
+}
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -38,12 +52,61 @@ fun MainScreen(viewModel: MainViewModel) {
         },
         bottomBar = {
             NavigationBar {
-                NavigationBarItem(selected = tab == 0, onClick = { tab = 0 }, icon = { Icon(Icons.Default.CheckCircle, null) }, label = { Text(stringResource(R.string.tasks)) })
-                NavigationBarItem(selected = tab == 1, onClick = { tab = 1 }, icon = { Icon(Icons.Default.PlayArrow, null) }, label = { Text(stringResource(R.string.focus)) })
-                NavigationBarItem(selected = tab == 2, onClick = { tab = 2 }, icon = { Icon(Icons.Default.BarChart, null) }, label = { Text(stringResource(R.string.dashboard)) })
-                NavigationBarItem(selected = tab == 3, onClick = { tab = 3 }, icon = { Icon(Icons.Default.Settings, null) }, label = { Text(stringResource(R.string.settings)) })
-            }
-        }
+                NavigationBarItem(
+    selected = tab == 0,
+    onClick = { tab = 0 },
+    icon = {
+        Icon(
+            Icons.Default.CheckCircle,
+            contentDescription = stringResource(R.string.tasks)
+        )
+    },
+    label = {
+        Text(stringResource(R.string.tasks))
+    }
+)
+
+NavigationBarItem(
+    selected = tab == 1,
+    onClick = { tab = 1 },
+    icon = {
+        Icon(
+            Icons.Default.PlayArrow,
+            contentDescription = stringResource(R.string.focus)
+        )
+    },
+    label = {
+        Text(stringResource(R.string.focus))
+    }
+)
+
+NavigationBarItem(
+    selected = tab == 2,
+    onClick = { tab = 2 },
+    icon = {
+        Icon(
+            Icons.Default.BarChart,
+            contentDescription = stringResource(R.string.dashboard)
+        )
+    },
+    label = {
+        Text(stringResource(R.string.dashboard))
+    }
+)
+
+NavigationBarItem(
+    selected = tab == 3,
+    onClick = { tab = 3 },
+    icon = {
+        Icon(
+            Icons.Default.Settings,
+            contentDescription = stringResource(R.string.settings)
+        )
+    },
+    label = {
+        Text(stringResource(R.string.settings))
+    }
+)
     ) { padding ->
         when (tab) {
             0 -> TasksScreen(padding, tasks, query, filter, viewModel::setQuery, viewModel::setFilter, viewModel::toggleDone, viewModel::deleteTask, viewModel::openEditDialog)
@@ -56,7 +119,27 @@ fun MainScreen(viewModel: MainViewModel) {
 }
 
 @Composable
-private fun TasksScreen(padding: PaddingValues, tasks: List<Task>, query: String, filter: TaskFilter, onQuery: (String) -> Unit, onFilter: (TaskFilter) -> Unit, onToggle: (Task) -> Unit, onDelete: (Task) -> Unit, onEdit: (Task) -> Unit) {
+private fun SettingRow(
+    label: String,
+    selected: Boolean,
+    action: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = action)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = action
+        )
+
+        Spacer(Modifier.width(8.dp))
+        Text(label)
+    }
+}
     Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
         OutlinedTextField(value = query, onValueChange = onQuery, modifier = Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.search)) }, singleLine = true)
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
