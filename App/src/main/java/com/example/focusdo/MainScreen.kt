@@ -1,26 +1,12 @@
 package com.example.focusdo
 
-package com.example.focusdo
-
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults as Material3ButtonDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-
-object ButtonDefaults {
-    @Composable
-    fun buttonColors(containerColor: Color): ButtonColors =
-        Material3ButtonDefaults.buttonColors(
-            containerColor = containerColor
-        )
-}
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -29,9 +15,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 
 @Composable
@@ -53,60 +41,62 @@ fun MainScreen(viewModel: MainViewModel) {
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
-    selected = tab == 0,
-    onClick = { tab = 0 },
-    icon = {
-        Icon(
-            Icons.Default.CheckCircle,
-            contentDescription = stringResource(R.string.tasks)
-        )
-    },
-    label = {
-        Text(stringResource(R.string.tasks))
-    }
-)
+                    selected = tab == 0,
+                    onClick = { tab = 0 },
+                    icon = {
+                        Icon(
+                            Icons.Default.CheckCircle,
+                            contentDescription = stringResource(R.string.tasks)
+                        )
+                    },
+                    label = {
+                        Text(stringResource(R.string.tasks))
+                    }
+                )
 
-NavigationBarItem(
-    selected = tab == 1,
-    onClick = { tab = 1 },
-    icon = {
-        Icon(
-            Icons.Default.PlayArrow,
-            contentDescription = stringResource(R.string.focus)
-        )
-    },
-    label = {
-        Text(stringResource(R.string.focus))
-    }
-)
+                NavigationBarItem(
+                    selected = tab == 1,
+                    onClick = { tab = 1 },
+                    icon = {
+                        Icon(
+                            Icons.Default.PlayArrow,
+                            contentDescription = stringResource(R.string.focus)
+                        )
+                    },
+                    label = {
+                        Text(stringResource(R.string.focus))
+                    }
+                )
 
-NavigationBarItem(
-    selected = tab == 2,
-    onClick = { tab = 2 },
-    icon = {
-        Icon(
-            Icons.Default.BarChart,
-            contentDescription = stringResource(R.string.dashboard)
-        )
-    },
-    label = {
-        Text(stringResource(R.string.dashboard))
-    }
-)
+                NavigationBarItem(
+                    selected = tab == 2,
+                    onClick = { tab = 2 },
+                    icon = {
+                        Icon(
+                            Icons.Default.BarChart,
+                            contentDescription = stringResource(R.string.dashboard)
+                        )
+                    },
+                    label = {
+                        Text(stringResource(R.string.dashboard))
+                    }
+                )
 
-NavigationBarItem(
-    selected = tab == 3,
-    onClick = { tab = 3 },
-    icon = {
-        Icon(
-            Icons.Default.Settings,
-            contentDescription = stringResource(R.string.settings)
-        )
-    },
-    label = {
-        Text(stringResource(R.string.settings))
-    }
-)
+                NavigationBarItem(
+                    selected = tab == 3,
+                    onClick = { tab = 3 },
+                    icon = {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.settings)
+                        )
+                    },
+                    label = {
+                        Text(stringResource(R.string.settings))
+                    }
+                )
+            }
+        }
     ) { padding ->
         when (tab) {
             0 -> TasksScreen(padding, tasks, query, filter, viewModel::setQuery, viewModel::setFilter, viewModel::toggleDone, viewModel::deleteTask, viewModel::openEditDialog)
@@ -117,9 +107,6 @@ NavigationBarItem(
     }
     if (dialog.visible) TaskDialog(dialog, viewModel::dismissDialog, viewModel::onDialogTitleChange, viewModel::onDialogNoteChange, viewModel::onDialogPriorityChange, viewModel::saveDialog)
 }
-
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.ui.semantics.Role
 
 @Composable
 private fun SettingRow(
@@ -146,6 +133,19 @@ private fun SettingRow(
         Text(label)
     }
 }
+
+@Composable
+private fun TasksScreen(
+    padding: PaddingValues,
+    tasks: List<Task>,
+    query: String,
+    filter: TaskFilter,
+    onQuery: (String) -> Unit,
+    onFilter: (TaskFilter) -> Unit,
+    onToggle: (Task) -> Unit,
+    onDelete: (Task) -> Unit,
+    onEdit: (Task) -> Unit
+) {
     Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
         OutlinedTextField(value = query, onValueChange = onQuery, modifier = Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.search)) }, singleLine = true)
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -222,8 +222,18 @@ private fun SettingsScreen(padding: PaddingValues) {
     }
 }
 
-@Composable private fun SettingRow(label: String, selected: Boolean, action: () -> Unit) {
-    Row(Modifier.fillMaxWidth().clickable(onClick = action).padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) { RadioButton(selected = selected, onClick = action); Spacer(Modifier.width(8.dp)); Text(label) }
+private fun setLanguage(tag: String) {
+    AppCompatDelegate.setApplicationLocales(
+        if (tag == "system") LocaleListCompat.getEmptyLocaleList() else LocaleListCompat.forLanguageTags(tag)
+    )
 }
-private fun setLanguage(tag: String) { AppCompatDelegate.setApplicationLocales(if (tag == "system") LocaleListCompat.getEmptyLocaleList() else LocaleListCompat.forLanguageTags(tag)) }
-private fun setTheme(theme: String) { AppCompatDelegate.setDefaultNightMode(when (theme) { "light" -> AppCompatDelegate.MODE_NIGHT_NO; "dark" -> AppCompatDelegate.MODE_NIGHT_YES; else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM }) }
+
+private fun setTheme(theme: String) {
+    AppCompatDelegate.setDefaultNightMode(
+        when (theme) {
+            "light" -> AppCompatDelegate.MODE_NIGHT_NO
+            "dark" -> AppCompatDelegate.MODE_NIGHT_YES
+            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+    )
+}
