@@ -9,6 +9,7 @@
     <string name="focus">Focus</string>
     <string name="dashboard">Dashboard</string>
     <string name="about">About</string>
+    <string name="settings">Settings</string>
 
     <string name="search">Search</string>
     <string name="all">All</string>
@@ -39,6 +40,8 @@
     <string name="system">System</string>
     <string name="english">English</string>
     <string name="persian">Persian</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
 
     <string name="today_focus">Today Focus</string>
     <string name="weekly_focus">Weekly Focus</string>
